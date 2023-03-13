@@ -20,8 +20,6 @@ public class UpgradeAuthority {
         updatedAuthorities.add(new SimpleGrantedAuthority("2"));
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
         User user = principal.getUser();
-        user.setRole(user.getRole()+1);
-        new PrincipalDetails(user);
         Authentication newAuth = new UsernamePasswordAuthenticationToken(new PrincipalDetails(user), authentication.getCredentials(), updatedAuthorities);
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }

@@ -1,6 +1,7 @@
 package com.otp.otpproject.Configuration;
 
 import com.otp.otpproject.Security.AuthenticationSuccessHandler;
+import com.otp.otpproject.Security.CustomAccessDeniedHandler;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public BCryptPasswordEncoder cryptPW(){
@@ -28,14 +30,16 @@ public class SecurityConfig {
         http.headers().frameOptions().sameOrigin();
         http
                 .authorizeHttpRequests()
-                .antMatchers("/signin", "/signup", "/css/**", "/item/**", "/js/**", "/fragments/**").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/signin", "/signup", "/css/**", "/item/**", "/js/**", "/fragments/**", "/test").permitAll()
+                .antMatchers( "/test","/OTPAuth").hasAuthority("1")
+                .anyRequest().hasAuthority("2")
                 .and()
                 .formLogin()
                 .loginPage("/signin")
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/", true)
                 .successHandler(authenticationSuccessHandler);
+        http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler);
         return http.build();
     }
 }

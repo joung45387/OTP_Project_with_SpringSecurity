@@ -4,6 +4,7 @@ import com.otp.otpproject.Security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,7 @@ public class Main {
     }
     @GetMapping("/test")
     public String test(@AuthenticationPrincipal PrincipalDetails principalDetails, Model model){
-        Collection<? extends GrantedAuthority> authorities = principalDetails.getAuthorities();
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         List<String> collect = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         model.addAttribute("userName", "현재 접속아이디는 "+principalDetails.getUsername()+"이고 권한은"+collect+"입니다.");
         return "main";
