@@ -1,5 +1,12 @@
 package com.otp.otpproject.Controller;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.otp.otpproject.Domain.Model.AppInfo;
+import com.otp.otpproject.Domain.Model.User;
+import com.otp.otpproject.Repository.AppInfoRepository;
+import com.otp.otpproject.Security.PrincipalDetails;
+import com.otp.otpproject.Service.Firebase.FcmService;
+import com.otp.otpproject.Service.OTPFunction;
 import com.otp.otpproject.Service.UpgradeAuthority;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +25,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SignIn {
     private final UpgradeAuthority upgradeAuthority;
+    private final OTPFunction otpFunction;
+    private final AppInfoRepository appInfoRepository;
+    private final FcmService fcmService;
     @GetMapping("/signin")
     public String singIn(){
         return "signin";
@@ -32,8 +42,22 @@ public class SignIn {
         return "OTPAuth";
     }
     @PostMapping("/OTPAuth")
-    public String singInOTPPost(){
-        upgradeAuthority.upgrade2FAuthority();
-        return "redirect:/test";
+    public String singInOTPPost(@AuthenticationPrincipal PrincipalDetails principalDetails, Integer userOTP, Model model){
+        User user = principalDetails.getUser();
+        List<Integer> serverOTPs = otpFunction.getOTPNum(user.getSerialNumber());
+        if(serverOTPs.contains(userOTP)){
+            upgradeAuthority.upgrade2FAuthority();
+            AppInfo appInfo = appInfoRepository.findById(user.getSerialNumber()).orElse(null);
+            if(appInfo!=null){
+                try {
+                    String s = fcmService.sendNotification("OTP로그인", user.getUsername()+"으로 로그인 완료했습니다.", appInfo.getAppToken());
+                } catch (FirebaseMessagingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return "redirect:/test";
+        }
+        model.addAttribute("OTPError", "OTP번호가 맞지 않습니다.");
+        return "OTPAuth";
     }
 }

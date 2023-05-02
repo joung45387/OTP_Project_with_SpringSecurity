@@ -30,7 +30,7 @@ public class SecurityConfig {
         http.headers().frameOptions().sameOrigin();
         http
                 .authorizeHttpRequests()
-                .antMatchers("/signin", "/signup", "/css/**", "/item/**", "/js/**", "/fragments/**", "/test", "/test2").permitAll()
+                .antMatchers("/signin", "/signup", "/css/**", "/item/**", "/js/**", "/fragments/**", "/test", "/test2", "/test3", "/api/registration").permitAll()
                 .antMatchers( "/test","/OTPAuth").hasAuthority("1")
                 .anyRequest().hasAuthority("2")
                 .and()

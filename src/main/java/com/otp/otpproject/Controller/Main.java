@@ -1,6 +1,8 @@
 package com.otp.otpproject.Controller;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
+import com.otp.otpproject.Domain.Model.AppInfo;
+import com.otp.otpproject.Repository.AppInfoRepository;
 import com.otp.otpproject.Security.PrincipalDetails;
 import com.otp.otpproject.Service.Firebase.FcmService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class Main {
     private final FcmService fcmService;
+    private final AppInfoRepository appInfoRepository;
     @GetMapping("/")
     public String signUp(@AuthenticationPrincipal PrincipalDetails principalDetails, Model model){
         model.addAttribute("userName", principalDetails.getUsername());
@@ -34,13 +38,23 @@ public class Main {
 
     @GetMapping("/test2")
     public String test2(){
-        String s;
-        try {
-            s = fcmService.sendNotification("로그인 처리가 완료되었습니다.", "본인이 아니라면 문의 ㄱㄱ");
-        } catch (FirebaseMessagingException e) {
-            throw new RuntimeException(e);
+        AppInfo appInfo = appInfoRepository.findById(111111).orElse(null);
+        if(appInfo!=null){
+            try {
+                String s = fcmService.sendNotification("님 해킹당함", "ㅅㄱ", appInfo.getAppToken());
+            } catch (FirebaseMessagingException e) {
+                throw new RuntimeException(e);
+            }
         }
-        System.out.println(s);
         return "main";
+    }
+    @PostMapping("/test3")
+    public String test3(String token, String serialNum){
+        System.out.println(token+"-"+serialNum);
+        return "main";
+
+    }
+    public int aaa(){
+        return 2;
     }
 }
