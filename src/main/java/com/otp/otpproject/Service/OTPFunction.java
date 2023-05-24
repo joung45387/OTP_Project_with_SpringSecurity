@@ -9,17 +9,22 @@ import java.util.List;
 
 @Component
 public class OTPFunction {
-    public List<Integer> getOTPNum(int serialNum){
+    public List<String> getOTPNum(int serialNum){
+        List<String> otps = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        int year = now.getYear();
-        int monthValue = now.getMonthValue();
-        int dayOfMonth = now.getDayOfMonth();
-        int hour = now.getHour();
-        int minute = now.getMinute();
-        List<Integer> li = new ArrayList<>();
-        li.add(serialNum*year*monthValue*dayOfMonth*hour*minute%1000000);
-        li.add(serialNum*year*monthValue*dayOfMonth*hour*(minute-1)%1000000);
-        li.add(serialNum*year*monthValue*dayOfMonth*hour*(minute+1)%1000000);
-        return li;
+        for(int i=0;i<60;i++){
+            LocalDateTime time = now.plusSeconds(i);
+            int year = time.getYear();
+            int monthValue = time.getMonthValue();
+            int dayOfMonth = time.getDayOfMonth();
+            int hour = time.getHour();
+            int minute = time.getMinute();
+            int second = time.getSecond();
+            long l = (long) serialNum * monthValue * dayOfMonth * (hour+1) * (minute+1) * (second+1)  / year * 37;
+            StringBuilder sb = new StringBuilder(String.format("%06d", l%1000000));
+            otps.add(sb.reverse().toString());
+        }
+
+        return otps;
     }
 }
