@@ -17,7 +17,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,24 +36,29 @@ public class SignIn {
         return "signin";
     }
     @GetMapping("/OTPAuth")
-    public String singInOTP(){
+    public String singInOTP(@AuthenticationPrincipal PrincipalDetails principalDetails, Model model){
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         List<String> collect = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+
+        User user = principalDetails.getUser();
+        //List<String> serverOTPs = otpFunction.getOTPNum(user.getSerialNumber());
+        //model.addAttribute("maybe",serverOTPs.get(1));
         if(collect.contains("2")){
             return "redirect:/";
         }
         return "OTPAuth";
     }
     @PostMapping("/OTPAuth")
-    public String singInOTPPost(@AuthenticationPrincipal PrincipalDetails principalDetails, Integer userOTP, Model model){
+    public String signInOTPPost(@AuthenticationPrincipal PrincipalDetails principalDetails, String userOTP, Model model){
         User user = principalDetails.getUser();
-        List<Integer> serverOTPs = otpFunction.getOTPNum(user.getSerialNumber());
+        List<String> serverOTPs = otpFunction.getOTPNum(user.getSerialNumber());
         if(serverOTPs.contains(userOTP)){
             upgradeAuthority.upgrade2FAuthority();
             AppInfo appInfo = appInfoRepository.findById(user.getSerialNumber()).orElse(null);
             if(appInfo!=null){
                 try {
-                    String s = fcmService.sendNotification("OTP로그인", user.getUsername()+"으로 로그인 완료했습니다.", appInfo.getAppToken());
+                    String now = LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString();
+                    fcmService.sendNotification("OTP로그인", user.getUsername()+"님이 "+ now.split("\\.")[0] +"에 로그인 했습니다.", appInfo.getAppToken());
                 } catch (FirebaseMessagingException e) {
                     throw new RuntimeException(e);
                 }

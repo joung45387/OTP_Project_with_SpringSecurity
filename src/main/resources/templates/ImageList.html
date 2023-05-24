@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:each="image : ${li}">
+    <img th:src="'data:image/png;base64,'+${image.getImage()}" style = "width:100%; left:20px">
+</div>
+</body>
+</html>

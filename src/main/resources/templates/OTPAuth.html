@@ -34,6 +34,7 @@
                     <button type="submit" class="btn btn-primary btn-xs" style="width:100%">입력</button>
                 </div>
             </form>
+            <div th:if="${maybe}" th:text="${maybe}"></div>
             <div th:if="${OTPError}" th:text="${OTPError}"></div>
         </div>
 

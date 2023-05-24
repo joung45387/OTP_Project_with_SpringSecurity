@@ -5,6 +5,7 @@ import com.otp.otpproject.Domain.Model.AppInfo;
 import com.otp.otpproject.Repository.AppInfoRepository;
 import com.otp.otpproject.Security.PrincipalDetails;
 import com.otp.otpproject.Service.Firebase.FcmService;
+import com.otp.otpproject.Service.TEST;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class Main {
     private final FcmService fcmService;
     private final AppInfoRepository appInfoRepository;
+    private final TEST test;
     @GetMapping("/")
     public String signUp(@AuthenticationPrincipal PrincipalDetails principalDetails, Model model){
         model.addAttribute("userName", principalDetails.getUsername());
@@ -54,6 +56,13 @@ public class Main {
         return "main";
 
     }
+    @GetMapping("/test3")
+    public String test3(){
+        System.out.println(test.getA());
+        test.up();
+        return "main";
+    }
+
     public int aaa(){
         return 2;
     }
